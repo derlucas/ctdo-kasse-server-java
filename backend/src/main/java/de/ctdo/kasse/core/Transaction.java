@@ -22,7 +22,6 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
     private BigDecimal balance = BigDecimal.ZERO;
 
     @NotNull

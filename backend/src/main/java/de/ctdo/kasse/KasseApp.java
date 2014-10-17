@@ -3,13 +3,16 @@ package de.ctdo.kasse;
 import de.ctdo.kasse.auth.BankerAuthenticator;
 import de.ctdo.kasse.core.Account;
 import de.ctdo.kasse.core.Banker;
+import de.ctdo.kasse.core.Product;
 import de.ctdo.kasse.core.Transaction;
 import de.ctdo.kasse.dao.AccountDAO;
 import de.ctdo.kasse.dao.BankerDAO;
+import de.ctdo.kasse.dao.ProductDAO;
 import de.ctdo.kasse.dao.TransactionDAO;
 import de.ctdo.kasse.health.DummyHealthCheck;
 import de.ctdo.kasse.resources.AccountsResource;
 import de.ctdo.kasse.resources.BankerResource;
+import de.ctdo.kasse.resources.ProductResource;
 import de.ctdo.kasse.resources.TransactionResource;
 import io.dropwizard.Application;
 import io.dropwizard.auth.basic.BasicAuthProvider;
@@ -33,7 +36,7 @@ public class KasseApp extends Application<AppConfiguration> {
         return "kasse-backend";
     }
 
-    private final HibernateBundle<AppConfiguration> hibernate = new HibernateBundle<AppConfiguration>(Banker.class, Account.class, Transaction.class) {
+    private final HibernateBundle<AppConfiguration> hibernate = new HibernateBundle<AppConfiguration>(Banker.class, Account.class, Transaction.class, Product.class) {
         @Override
         public DataSourceFactory getDataSourceFactory(AppConfiguration configuration) {
             return configuration.getDataSourceFactory();
@@ -53,6 +56,7 @@ public class KasseApp extends Application<AppConfiguration> {
         final BankerDAO bankerDAO = new BankerDAO(hibernate.getSessionFactory());
         final AccountDAO accountDAO = new AccountDAO(hibernate.getSessionFactory());
         final TransactionDAO transactionDAO = new TransactionDAO(hibernate.getSessionFactory());
+        final ProductDAO productDAO = new ProductDAO(hibernate.getSessionFactory());
 
         environment.healthChecks().register("dummy", new DummyHealthCheck());
 //        environment.jersey().register(new BasicAuthProvider<>(new AccountAuthenticator(accountDAO), "account required"));
@@ -60,6 +64,7 @@ public class KasseApp extends Application<AppConfiguration> {
         environment.jersey().register(new AccountsResource(accountDAO, transactionDAO));
         environment.jersey().register(new TransactionResource(accountDAO, transactionDAO));
         environment.jersey().register(new BankerResource(bankerDAO));
+        environment.jersey().register(new ProductResource(productDAO));
     }
 
 }
